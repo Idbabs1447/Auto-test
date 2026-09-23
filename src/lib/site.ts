@@ -2,7 +2,13 @@ export const site = {
   name: "Dashlink Integrated Autos",
   shortName: "Dashlink Autos",
   tagline: "Foreign-used vehicles, importation and vehicle sourcing — Ogba, Ikeja, Lagos.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  // Explicit setting first, then the project's production domain (Vercel sets
+  // NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL automatically), then local dev.
+  url:
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}`
+      : "http://localhost:3000"),
   address: {
     line1: "47 Ogunnusi Road",
     line2: "Ogba, Ikeja",

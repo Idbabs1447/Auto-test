@@ -54,14 +54,36 @@ pages, which is a runtime map view rather than a static asset.
 ## Configuration
 
 Business details, phone numbers, WhatsApp number and Instagram handle live in `src/lib/site.ts`.
-`DATABASE_URL` is read from `.env`. Set `NEXT_PUBLIC_SITE_URL` to the public domain so WhatsApp
-messages and the sitemap use absolute links.
+`DATABASE_URL` is read from the environment (`.env` / `.env.local` locally — see `.env.example`).
+Set `NEXT_PUBLIC_SITE_URL` to the public domain so WhatsApp messages and the sitemap use absolute
+links; on Vercel it falls back to the project's production domain automatically.
+
+## Deploying to Vercel
+
+1. **Add the `public/` folder to the repository.** Photos (`public/images/`) and fonts
+   (`public/fonts/`) are served from there. If it is missing, the site builds but every picture
+   returns 404.
+2. **Connect a PostgreSQL database.** In the Vercel project open **Storage → Create Database →
+   Neon (Postgres)** and connect it to the project. This adds `DATABASE_URL` for you. Any hosted
+   Postgres works — add its connection string as `DATABASE_URL` under **Settings → Environment
+   Variables**. (`localhost` URLs do not work on Vercel.)
+3. **Redeploy.** `npm run build` first runs `scripts/migrate.mjs`, which creates or updates the
+   tables from `drizzle/`, then runs `next build`. The inventory seeds itself on the first page
+   view.
+
+Without a database the build still succeeds, but the inventory pages and forms only work once
+`DATABASE_URL` is set.
 
 ## Local commands
 
 ```bash
-npx drizzle-kit push   # apply the schema
+cp .env.example .env    # then point DATABASE_URL at your database
+npm install
+npm run db:migrate      # apply the schema (also runs automatically during `npm run build`)
 npm run build && npm run start
 ```
+
+After changing `src/db/schema.ts`, run `npm run db:generate` to create a new migration in
+`drizzle/` and commit it.
 
 Inventory seeds itself on first request (idempotent), so a fresh database is never left empty.
